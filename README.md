@@ -13,13 +13,37 @@ herramientas validadas y con deshacer que usa el asistente de IA de la aplicaci�
 | `src/LiveStream.PluginSdk` | Biblioteca .NET: manifiesto, paquetes `.lsplugin`, firma ECDSA P-256 y `JsonRpcPeer` |
 | `examples/HelloPlugin` | Plugin de ejemplo completo (unas 60 líneas) |
 | `tools/LiveStream.PluginTool` | `lsplugin`: crear, validar, empaquetar, firmar, verificar y publicar |
+| `tools/LiveStream.SdkSetup` | Instalador por usuario: deja `lsplugin` en el PATH, con esquema, docs y NuGet local |
 | `plugin.schema.json` | Esquema JSON de `plugin.json` |
+| `scripts/` | Empaquetado de la distribución y notas de release |
+| `tests/` | Pruebas unitarias del instalador |
 | `docs/SDK.md` | Guía completa: ciclo de vida, permisos, protocolo, versiones y errores frecuentes |
+
+## Instalar
+
+Descarga `LiveStream-SDK-Setup-<versión>.exe` de la página de
+[releases](https://github.com/angelitosystems/LiveStream-SDK/releases) y ejecútalo: instala solo para tu usuario (sin
+permisos de administrador) en `%LOCALAPPDATA%\Programs\LiveStream\sdk`, añade esa carpeta al **PATH** y define
+`LIVESTREAM_SDK_DIR`. Desinstalar desde «Aplicaciones instaladas» o `LiveStream-SDK-Setup.exe --uninstall`. También
+hay un `.zip` con el mismo contenido, sin instalar.
+
+Con el instalador no necesitas este repositorio para desarrollar plugins.
 
 ## Empezar
 
-Requiere el [SDK de .NET 10](https://dotnet.microsoft.com/download) para el ejemplo y la herramienta. El plugin en sí
-puede estar escrito en cualquier lenguaje que produzca un `.exe`.
+Requiere el [SDK de .NET 10](https://dotnet.microsoft.com/download) para compilar el plugin en sí. Con `lsplugin`
+instalado (o `dotnet run --project tools/LiveStream.PluginTool` desde este repositorio):
+
+```powershell
+lsplugin new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
+cd mi-plugin
+dotnet publish -c Release
+lsplugin validate bin/Release/net10.0/win-x64/
+lsplugin pack bin/Release/net10.0/win-x64/ -o hello.lsplugin
+```
+
+`lsplugin new` genera el proyecto completo: manifiesto, csproj, `Program.cs` ya conectado al protocolo, `NuGet.config`
+y `.gitignore`. Sin instalar el SDK, también funciona desde el repositorio:
 
 ```powershell
 dotnet build
@@ -29,6 +53,14 @@ dotnet run --project tools/LiveStream.PluginTool -- pack examples/HelloPlugin/bi
 
 Para probarlo en LiveStream (0.9.0 o posterior): **Herramientas → Marketplace de plugins**, activa el **modo
 desarrollador** y pulsa **Instalar desde archivo…**.
+
+## Generar la distribución
+
+```powershell
+./scripts/package.ps1   # artifacts/release: LiveStream-SDK-Setup-<versión>.exe, .zip y SHA256SUMS.txt
+```
+
+Al subir un tag `v*`, GitHub Actions genera y publica la release automáticamente (`.github/workflows/release.yml`).
 
 ## Publicación
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Instalador del SDK: se publica como un único .exe con el paquete incrustado (propiedad PayloadZip).
+       Consola simple: instala lsplugin en la carpeta por usuario, lo añade al PATH y registra la desinstalación. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Solo Windows: manipula el registro del usuario y el PATH. La biblioteca sí es multiplataforma. -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <AssemblyName>LiveStream-SDK-Setup</AssemblyName>
+    <RootNamespace>LiveStream.SdkSetup</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(PayloadZip)' != ''">
+    <EmbeddedResource Include="$(PayloadZip)" LogicalName="payload.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LiveStream.PluginSdk\LiveStream.PluginSdk.csproj" />
+  </ItemGroup>
+</Project>

@@ -4,3 +4,4 @@ obj/
 *.sig.json
 *.pem
 .vs/
+artifacts/

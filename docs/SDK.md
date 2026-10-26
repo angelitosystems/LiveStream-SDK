@@ -107,12 +107,32 @@ En .NET, `JsonRpcPeer` resuelve el entramado. Mira `examples/HelloPlugin/Program
 
 ## 5. Crear, probar y empaquetar
 
+Instala el SDK con `LiveStream-SDK-Setup-<versión>.exe` de la
+[última release](https://github.com/angelitosystems/LiveStream-SDK/releases): deja `lsplugin` en el PATH de tu usuario,
+el esquema, la documentación y el paquete NuGet local de `LiveStream.PluginSdk`. Después (en una terminal nueva):
+
+```powershell
+lsplugin new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
+cd mi-plugin
+dotnet publish -c Release
+lsplugin validate bin\Release\net10.0\win-x64\
+lsplugin pack bin\Release\net10.0\win-x64\ -o com.empresa.miplugin-0.1.0.lsplugin
+```
+
+`lsplugin new` genera proyecto completo: `plugin.json`, `<Proyecto>.csproj` (referencia al paquete del SDK local,
+restaurado sin conexión desde `LIVESTREAM_SDK_DIR\packages`), `Program.cs` ya conectado al protocolo, `NuGet.config`
+y `.gitignore`. Programar el plugin es completar la lógica bajo esas llamadas; el ejemplo de referencia completo está
+en `examples/HelloPlugin`.
+
+Sin el SDK instalado también funciona desde el repositorio:
+
 ```powershell
 dotnet run --project tools/LiveStream.PluginTool -- new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
-# … programa el .exe (copia la estructura de examples/HelloPlugin) y compílalo …
-lsplugin validate <carpeta-de-salida>
-lsplugin pack <carpeta-de-salida> -o com.empresa.miplugin-0.1.0.lsplugin
 ```
+
+Para probarlo sin firma, activa **Herramientas → Marketplace de plugins → Modo desarrollador** e instálalo con
+«Instalar desde archivo…». El registro de LiveStream (Herramientas → Abrir registros de diagnóstico) muestra las líneas
+`[plugin:<id>]`.
 
 Para probarlo sin firma, activa **Herramientas → Marketplace de plugins → Modo desarrollador** e instálalo con
 «Instalar desde archivo…». El registro de LiveStream (Herramientas → Abrir registros de diagnóstico) muestra las líneas
