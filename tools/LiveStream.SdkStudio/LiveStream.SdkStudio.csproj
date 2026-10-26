@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- LiveStream.SdkStudio: GUI del SDK de plugins. Mismos servicios (LiveStream.SdkCore) que la CLI `lsplugin`
+       y misma identidad visual (tema grafito + acento azul) que LiveStream.Desktop. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LiveStream.SdkStudio</RootNamespace>
+    <AssemblyName>LiveStream.SdkStudio</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.22" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LiveStream.SdkCore\LiveStream.SdkCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Studio.ico" />
+  </ItemGroup>
+</Project>

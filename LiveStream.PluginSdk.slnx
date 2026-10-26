@@ -4,12 +4,16 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/LiveStream.PluginSdk/LiveStream.PluginSdk.csproj" />
+    <Project Path="src/LiveStream.SdkCore/LiveStream.SdkCore.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/LiveStream.PluginTool/LiveStream.PluginTool.csproj" />
+    <Project Path="tools/LiveStream.SdkStudio/LiveStream.SdkStudio.csproj" />
     <Project Path="tools/LiveStream.SdkSetup/LiveStream.SdkSetup.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/LiveStream.SdkSetup.Tests/LiveStream.SdkSetup.Tests.csproj" />
+    <Project Path="tests/LiveStream.SdkCore.Tests/LiveStream.SdkCore.Tests.csproj" />
+    <Project Path="tests/LiveStream.Cli.Tests/LiveStream.Cli.Tests.csproj" />
   </Folder>
 </Solution>

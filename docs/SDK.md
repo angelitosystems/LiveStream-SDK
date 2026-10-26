@@ -112,30 +112,37 @@ Instala el SDK con `LiveStream-SDK-Setup-<versión>.exe` de la
 el esquema, la documentación y el paquete NuGet local de `LiveStream.PluginSdk`. Después (en una terminal nueva):
 
 ```powershell
-lsplugin new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
+lsplugin init mi-plugin --id com.empresa.miplugin --name "Mi plugin"
 cd mi-plugin
-dotnet publish -c Release
-lsplugin validate bin\Release\net10.0\win-x64\
+lsplugin build
 lsplugin pack bin\Release\net10.0\win-x64\ -o com.empresa.miplugin-0.1.0.lsplugin
 ```
 
-`lsplugin new` genera proyecto completo: `plugin.json`, `<Proyecto>.csproj` (referencia al paquete del SDK local,
-restaurado sin conexión desde `LIVESTREAM_SDK_DIR\packages`), `Program.cs` ya conectado al protocolo, `NuGet.config`
-y `.gitignore`. Programar el plugin es completar la lógica bajo esas llamadas; el ejemplo de referencia completo está
-en `examples/HelloPlugin`.
+`init` genera el proyecto completo: `plugin.json`, `<Proyecto>.csproj` (referencia al paquete del SDK local,
+restaurado sin conexión desde `LIVESTREAM_SDK_DIR\packages`, o `ProjectReference` si trabajas dentro del repositorio),
+`Program.cs` de la plantilla elegida, `NuGet.config` y `.gitignore`. Con `--template` eliges punto de partida entre
+`basic`, `graphics`, `sources`, `filters`, `integrations` y `tools` (todos compilan y llaman a herramientas reales de
+la API v1; detalles: `lsplugin init-templates`). Con `--min-app-version` bajas el requisito de LiveStream cuando quieras
+probar en una app local más antigua que la versión que exige el ejemplo.
 
-Sin el SDK instalado también funciona desde el repositorio:
+La misma lógica vive en una interfaz gráfica: **SDK Studio** (`LiveStream.SdkStudio`), que acompaña al `lsplugin` de la
+distribución y comparte con él el núcleo `LiveStream.SdkCore` (mismos servicios, mismos formatos). Sus páginas: crear
+proyecto, editar manifiesto con validación al instante, compilar/empaquetar/firmar, gestionar los plugins instalados
+y un diagnóstico completo (`doctor`) con informe copiable.
+
+Referencia completa de la CLI (órdenes, opciones, códigos de salida 0/1/2 y autocompletado para pwsh/bash/zsh):
+`docs/CLI.md`, y `lsplugin help <orden>` en la propia terminal. `doctor` repasa el entorno de golpe:
+`lsplugin doctor` o `lsplugin doctor --json`.
+
+Sin instalar el SDK también funciona desde el repositorio:
 
 ```powershell
-dotnet run --project tools/LiveStream.PluginTool -- new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
+dotnet run --project tools/LiveStream.PluginTool -- init mi-plugin --id com.empresa.miplugin --name "Mi plugin"
 ```
 
-Para probarlo sin firma, activa **Herramientas → Marketplace de plugins → Modo desarrollador** e instálalo con
-«Instalar desde archivo…». El registro de LiveStream (Herramientas → Abrir registros de diagnóstico) muestra las líneas
-`[plugin:<id>]`.
-
-Para probarlo sin firma, activa **Herramientas → Marketplace de plugins → Modo desarrollador** e instálalo con
-«Instalar desde archivo…». El registro de LiveStream (Herramientas → Abrir registros de diagnóstico) muestra las líneas
+Para probarlo sin firma, instala con `lsplugin install <paquete> --dev` — pedirá confirmar los permisos como lo hace la
+app — o activa **Herramientas → Marketplace de plugins → Modo desarrollador** e instálalo con «Instalar desde
+archivo…». El registro de LiveStream (Herramientas → Abrir registros de diagnóstico) muestra las líneas
 `[plugin:<id>]`.
 
 El paquete `.lsplugin` es un ZIP con `plugin.json` en la raíz. Límites: 100 MB por paquete, 300 MB descomprimido y

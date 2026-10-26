@@ -7,9 +7,11 @@
   Con -CertificateThumbprint firma los .exe con signtool (certificado del almacén del usuario).
 
 .DESCRIPTION
-  El paquete instalado (igual en el instalador y en el .zip): lsplugin.exe autocontenido, plugin.schema.json,
-  docs/SDK.md, README.txt de arranque y el paquete NuGet local LiveStream.PluginSdk.<versión>.nupkg, que usan los
-  proyectos que `lsplugin new` genera para restaurar sin conexión (variable LIVESTREAM_SDK_DIR del instalador).
+  El paquete instalado (igual en el instalador y en el .zip): lsplugin.exe autocontenido (CLI), la GUI SDK Studio
+  (framework-dependent: el usuario ya necesita el runtime de .NET 10 para compilar plugins), plugin.schema.json,
+  docs/SDK.md y docs/CLI.md, README.txt de arranque y el paquete NuGet local LiveStream.PluginSdk.<versión>.nupkg,
+  que usan los proyectos que `lsplugin init` genera para restaurar sin conexión (variable LIVESTREAM_SDK_DIR del
+  instalador).
 #>
 param(
     [string] $Configuration = 'Release',
@@ -53,7 +55,7 @@ if ($LASTEXITCODE) { throw 'dotnet pack falló.' }
 New-Item -ItemType Directory -Force (Join-Path $payload 'packages') | Out-Null
 Get-ChildItem (Join-Path $work 'packages') -Filter '*.nupkg' | Move-Item -Destination (Join-Path $payload 'packages') -Force
 
-Write-Host '2/4 lsplugin (autocontenido)…'
+Write-Host '2/5 lsplugin (autocontenido)…'
 dotnet publish (Join-Path $root 'tools/LiveStream.PluginTool/LiveStream.PluginTool.csproj') -c $Configuration -r win-x64 --self-contained true `
     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true `
     -o $work -v q --nologo
@@ -62,30 +64,43 @@ if (-not (Test-Path (Join-Path $work 'lsplugin.exe'))) { throw 'Falta lsplugin.e
 Copy-Item (Join-Path $work 'lsplugin.exe') $payload
 Invoke-Sign (Join-Path $payload 'lsplugin.exe')
 
-Write-Host '3/4 Contenido del SDK…'
+Write-Host '3/5 SDK Studio (GUI, framework-dependent)…'
+$studio = Join-Path $payload 'sdkstudio'
+New-Item -ItemType Directory -Force $studio | Out-Null
+dotnet publish (Join-Path $root 'tools/LiveStream.SdkStudio/LiveStream.SdkStudio.csproj') -c $Configuration -r win-x64 --self-contained false `
+    -o $studio -v q --nologo
+if ($LASTEXITCODE) { throw 'La publicación de SDK Studio falló.' }
+if (-not (Test-Path (Join-Path $studio 'LiveStream.SdkStudio.exe'))) { throw 'Falta LiveStream.SdkStudio.exe.' }
+Invoke-Sign (Join-Path $studio 'LiveStream.SdkStudio.exe')
+
+Write-Host '4/5 Contenido del SDK…'
 Copy-Item (Join-Path $root 'plugin.schema.json') $payload
 Copy-Item (Join-Path $root 'docs/SDK.md') (Join-Path $payload 'docs')
+Copy-Item (Join-Path $root 'docs/CLI.md') (Join-Path $payload 'docs')
 Copy-Item (Join-Path $root 'LICENSE') (Join-Path $payload 'LICENSE.txt')
 $quickstart = @"
 SDK de plugins de LiveStream $version
 =====================================
 
 1. Abre una terminal nueva (para que el PATH renovado esté disponible).
-2. lsplugin new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
-3. cd mi-plugin ; dotnet publish -c Release
-4. lsplugin validate bin\Release\net10.0\win-x64\
-5. lsplugin pack bin\Release\net10.0\win-x64\
+2. lsplugin init mi-plugin --id com.empresa.miplugin --name "Mi plugin"
+3. cd mi-plugin ; lsplugin build
+4. lsplugin pack bin\Release\net10.0\win-x64\
+5. lsplugin install .\<paquete>.lsplugin --dev  (o directamente en la GUI, "SDK Studio.exe")
+
+También puedes hacer el paso 2 en la GUI: sdkstudio\LiveStream.SdkStudio.exe
+(crear proyecto, manifiesto, compilar, empaquetar y firmar; misma lógica que la CLI).
 
 En LiveStream: Herramientas -> Marketplace de plugins -> Modo desarrollador (una sola vez)
 y luego "Instalar desde archivo..." con el .lsplugin.
 
-Documentación: docs\SDK.md o
+Referencia de la CLI: docs\CLI.md   ·   Guía de la API: docs\SDK.md
 https://github.com/angelitosystems/LiveStream-SDK/blob/main/docs/SDK.md
 "@
 Set-Content (Join-Path $payload 'README.txt') $quickstart -Encoding utf8
 Compress-Archive -Path (Join-Path $payload '*') -DestinationPath $zip -CompressionLevel Optimal
 
-Write-Host '4/4 Instalador…'
+Write-Host '5/5 Instalador…'
 dotnet publish (Join-Path $root 'tools/LiveStream.SdkSetup/LiveStream.SdkSetup.csproj') -c $Configuration -r win-x64 --self-contained true `
     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true `
     "-p:PayloadZip=$zip" -o $work -v q --nologo

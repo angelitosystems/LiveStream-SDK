@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Núcleo compartido: la CLI (lsplugin) y la GUI (LiveStream.SdkStudio) consumen exactamente estos servicios.
+       Formatos versionados: plugin.json schema (apiVersion), plugins.json (schema 1), lsplugin.json (schema 1). -->
+  <PropertyGroup>
+    <RootNamespace>LiveStream.SdkCore</RootNamespace>
+    <Description> Crear, empaquetar, firmar, publicar e instalar plugins de LiveStream: núcleo compartido de lsplugin y de la GUI. </Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LiveStream.PluginSdk\LiveStream.PluginSdk.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Nombres lógicos fijos: Templates/common/... → "common.x", Templates/basic/... → "basic.x", etc. -->
+    <EmbeddedResource Include="Templates\common\*" LogicalName="common.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Templates\basic\*" LogicalName="basic.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Templates\graphics\*" LogicalName="graphics.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Templates\sources\*" LogicalName="sources.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Templates\filters\*" LogicalName="filters.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Templates\integrations\*" LogicalName="integrations.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Templates\tools\*" LogicalName="tools.%(Filename)%(Extension)" />
+    <!-- Las plantillas son texto para el scaffold, no código de este proyecto. -->
+    <Compile Remove="Templates\**" />
+  </ItemGroup>
+</Project>

@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiveStream.PluginSdk;
 
-// __NAME__ — plugin de ejemplo para LiveStream. stdout es el canal del protocolo: nunca escribas otra cosa en él
+// __NAME__ - plugin de ejemplo para LiveStream. stdout es el canal del protocolo: nunca escribas otra cosa en él
 // (usa «log» o stderr; stderr lo guarda el registro de LiveStream). Documentación completa:
 // https://github.com/angelitosystems/LiveStream/blob/main/docs/plugins/SDK.md
 Console.InputEncoding = Encoding.UTF8;

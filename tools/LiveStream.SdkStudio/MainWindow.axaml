@@ -1,0 +1,206 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LiveStream.SdkStudio.MainWindow"
+        x:Name="Window"
+        Title="SDK Studio — plugins de LiveStream"
+        Width="980" Height="680"
+        MinWidth="820" MinHeight="560"
+        Background="{StaticResource Sp.Bg0Brush}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="10">
+    <!-- Cabecera -->
+    <StackPanel Orientation="Horizontal" Spacing="10" Margin="4,0,0,8">
+      <TextBlock Text="SDK Studio" FontWeight="Bold" FontSize="18" Foreground="{StaticResource Sp.AccentBrush}" />
+      <TextBlock Text="·" Classes="muted" VerticalAlignment="Center" />
+      <TextBlock x:Name="Subtitle" Classes="muted" VerticalAlignment="Center" Text="SDK de plugins de LiveStream" />
+    </StackPanel>
+
+    <!-- Páginas -->
+    <TabControl Grid.Row="1" Background="Transparent" x:Name="Tabs">
+      <TabItem Header="Inicio">
+        <Border Classes="panel" Margin="0,10">
+          <ScrollViewer>
+            <StackPanel Spacing="8">
+              <TextBlock Text="Estado del entorno" FontSize="15" FontWeight="SemiBold" />
+              <ItemsControl x:Name="HomeChecks">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                      <TextBlock Text="{Binding Caption}" Foreground="{Binding MarkBrush}" />
+                      <TextBlock Text="{Binding TextOfRow}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Classes="section" Text="Accesos rápidos" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Classes="acc" Content="Revisar todo" Click="OnHomeRefresh" />
+                <Button Content="Carpeta de plugins instalados" Click="OnHomeOpenPlugins" />
+                <Button Content="Datos y ajustes (%APPDATA%)" Click="OnHomeOpenData" />
+                <Button Content="Nuevo proyecto…" Click="OnHomeNew" />
+              </StackPanel>
+              <TextBlock x:Name="HomeHost" Classes="muted" Margin="0,8,0,0" TextWrapping="Wrap" />
+              <TextBlock x:Name="HomeRecents" Classes="muted" TextWrapping="Wrap" />
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Crear plugin">
+        <Border Classes="panel" Margin="0,10">
+          <Grid ColumnDefinitions="*,360">
+            <StackPanel Classes="form">
+              <TextBlock Text="Asistente del proyecto" Classes="h" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="Crea el proyecto completo del plugin: manifiesto, csproj conectado al SDK y Program.cs de la plantilla elegida (el código generado compila y llama a herramientas reales de LiveStream)." />
+              <TextBlock Classes="section" Text="Ubicación" />
+              <StackPanel Classes="row">
+                <TextBox x:Name="CreateDir" Watermark="Carpeta nueva para el proyecto (p. ej. C:\Proyectos\mi-plugin)" HorizontalAlignment="Stretch" />
+                <Button Content="Explorar…" Click="OnCreateChooseDir" />
+              </StackPanel>
+              <TextBlock Classes="section" Text="Identidad" />
+              <TextBox x:Name="CreateName" Watermark="Nombre visible (p. ej. Mi plugin)" TextChanged="OnCreateCompose" />
+              <TextBox x:Name="CreateId" Watermark="Id: com.empresa.plugin" TextChanged="OnCreateCompose" />
+              <StackPanel Classes="row">
+                <TextBox x:Name="CreateAuthor" Watermark="Autor (opcional)" HorizontalAlignment="Stretch" />
+                <TextBox x:Name="CreateVersion" Text="0.1.0" Width="120" />
+                <TextBox x:Name="CreateMinApp" Text="0.9.0" Width="120" />
+              </StackPanel>
+              <TextBlock Classes="section" Text="Plantilla" />
+              <ComboBox x:Name="CreateTemplate" SelectedIndex="0" SelectionChanged="OnCreateModelChanged" />
+              <TextBlock x:Name="CreateTemplateInfo" Classes="muted" TextWrapping="Wrap" />
+              <TextBlock x:Name="CreatePermissions" Classes="muted" TextWrapping="Wrap" />
+              <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
+                <Button x:Name="CreateRun" Classes="acc" Content="Crear proyecto" Click="OnCreateRun" />
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="20,0,0,0" Spacing="8">
+              <TextBlock Text="Plantillas disponibles" FontWeight="SemiBold" />
+              <TextBlock x:Name="CreateTemplatesList" Classes="muted" TextWrapping="Wrap" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Manifiesto">
+        <Border Classes="panel" Margin="0,10">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Editor de plugin.json" Classes="h" />
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="Abre un plugin.json y valida al instante identidad, permisos, dependencias y compatibilidad; al guardar se valida antes de sobrescribir." />
+            <StackPanel Classes="row">
+              <TextBox x:Name="ManifestPath" Watermark="Ruta de plugin.json (o de la carpeta del proyecto)" HorizontalAlignment="Stretch" />
+              <Button Content="Buscar…" Click="OnManifestChoose" />
+              <Button Content="Abrir" Click="OnManifestLoad" />
+            </StackPanel>
+            <TextBox x:Name="ManifestText" Classes="code" AcceptsReturn="True" Text="Sin manifiesto cargado." />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="acc" Content="Validar" Click="OnManifestValidate" />
+              <Button Content="Guardar" Click="OnManifestSave" />
+              <TextBlock x:Name="ManifestStatus" Classes="muted" VerticalAlignment="Center" TextWrapping="Wrap" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Paquete">
+        <Border Classes="panel" Margin="0,10">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Validar · compilar · empaquetar · firmar" Classes="h" />
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="Valida un proyecto compilado o un .lsplugin, compila cuando falta, genera el paquete reproducible y lo firma con la clave del publicador." />
+            <StackPanel Classes="row">
+              <TextBox x:Name="PackageInput" Watermark="Carpeta publicada (bin\Release\net10.0\win-x64) o paquete .lsplugin" HorizontalAlignment="Stretch" />
+              <Button Content="Explorar…" Click="OnPackageChoose" />
+            </StackPanel>
+            <TextBlock x:Name="PackageSummary" Classes="muted" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="acc" Content="Validar" Click="OnPackageValidate" />
+              <Button Content="Compilar" Click="OnPackageBuild" />
+              <Button Content="Empaquetar" Click="OnPackagePack" />
+              <Button Content="Firmar" Click="OnPackageSign" />
+              <Button Content="Verificar firma" Click="OnPackageVerify" />
+            </StackPanel>
+            <TextBlock x:Name="SignatureNote" Classes="muted" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Plugins">
+        <Border Classes="panel" Margin="0,10">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Instalados en este equipo" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <Button Content="Actualizar" Click="OnPluginsRefresh" />
+            </StackPanel>
+            <ListBox Grid.Row="1" x:Name="PluginList" Margin="0,10" MaxHeight="300"
+                     FontFamily="{StaticResource Sp.Mono}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Ellipse Width="9" Height="9" Fill="{Binding StateBrush}" VerticalAlignment="Center" />
+                    <TextBlock FontSize="12" Text="{Binding Caption}" FontWeight="SemiBold" />
+                    <TextBlock FontSize="12" Text="{Binding PathText}" Foreground="{StaticResource Sp.TextMutedBrush}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock x:Name="PluginInfo" Grid.Row="2" Classes="muted" TextWrapping="Wrap" MinHeight="64" />
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+              <Button Content="Abrir carpeta" Click="OnPluginsOpenFolder" />
+              <Button Content="Desactivar" Click="OnPluginsDisable" />
+              <Button Classes="acc" Content="Activar" Click="OnPluginsEnable" />
+              <Button Foreground="{StaticResource Sp.LiveBrush}" Content="Desinstalar…" Click="OnPluginsUninstall" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Diagnóstico">
+        <Border Classes="panel" Margin="0,10">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <TextBlock Text="Diagnóstico completo" FontWeight="SemiBold" />
+            <ScrollViewer Grid.Row="1" Margin="0,10">
+              <StackPanel x:Name="DoctorPanel" Spacing="6" />
+            </ScrollViewer>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
+              <Button Classes="acc" Content="Ejecutar diagnóstico" Click="OnDoctorRefresh" />
+              <Button Content="Copiar informe" Click="OnDoctorCopy" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </TabItem>
+
+      <TabItem Header="Documentación">
+        <Border Classes="panel" Margin="0,10">
+          <ScrollViewer>
+            <StackPanel Spacing="8" MaxWidth="760" HorizontalAlignment="Left">
+              <TextBlock Text="Guía del SDK de plugins" Classes="h" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="Un plugin es un programa aparte (.exe de Windows x64) que LiveStream ejecuta en su propio proceso y con el que habla por JSON-RPC 2.0 sobre stdin/stdout. La biblioteca LiveStream.PluginSdk ya trae el protocolo listo: el plugin responde a initialize/shutdown y llama a las herramientas del estudio (escenas, fuentes, audio, gráficos)." />
+              <TextBlock Classes="section" Text="Ruta rápida" />
+              <TextBox Classes="code" IsReadOnly="True" MinHeight="190"
+                       Text="# 1) Pestaña «Crear plugin»: plantilla + nombre + id → Crear proyecto
+# 2) Edita el Program.cs generado (cada plantilla trae llamadas reales con las que empezar)
+# 3) Pestaña «Paquete»: Compilar → Empaquetar (reproducible, .lsplugin)
+# 4) Firmarlo (lsplugin keygen crea el par; Firmar usa la clave por omisión)
+# 5) Probarlo: lsplugin install paquete.lsplugin --dev   (Modo desarrollador en la app)
+# 6) Antes de publicar: Diagnóstico + Verificar firma
+#    Publica solo el propietario: lsplugin publish --server https://… (token en la env var)" />
+              <TextBlock Classes="section" Text="Referencias en el repositorio" />
+              <TextBlock Classes="muted" TextWrapping="Wrap" Text="docs\SDK.md — guía completa del protocolo y la API v1" />
+              <TextBlock Classes="muted" TextWrapping="Wrap" Text="plugin.schema.json — esquema del manifiesto" />
+              <TextBlock Classes="muted" TextWrapping="Wrap" Text="docs\CLI.md — referencia de lsplugin (órdenes, banderas y códigos de salida)" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="El marketplace solo publica el propietario (token de administración); los usuarios instalan paquetes firmados desde el catálogo de la app." />
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </TabItem>
+    </TabControl>
+
+    <!-- Registro compartido de resultados -->
+    <TextBox Grid.Row="2" x:Name="Log" Classes="code" IsReadOnly="True" MinHeight="86" MaxHeight="170"
+             Text="Listo." TextWrapping="Wrap" FontFamily="{StaticResource Sp.Mono}" Margin="0,8,0,0"
+             Background="{StaticResource Sp.Bg1Brush}" />
+  </Grid>
+</Window>

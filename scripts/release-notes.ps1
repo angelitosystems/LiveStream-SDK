@@ -17,17 +17,18 @@ if (-not $section) { throw "CHANGELOG.md no tiene la sección [$Version]." }
 
 $tag = "v$Version"
 $notes = @"
-Descarga **``LiveStream-SDK-Setup-$Version.exe``** y ejecútalo: instala el CLI **``lsplugin``** para tu usuario (sin
-permisos de administrador), lo añade al **PATH**, deja el esquema del manifiesto, la documentación y el paquete NuGet
-local del SDK y registra la desinstalación en «Aplicaciones instaladas». También hay un ``.zip`` con el mismo
-contenido, sin instalar.
+Descarga **``LiveStream-SDK-Setup-$Version.exe``** y ejecútalo: instala para tu usuario (sin permisos de
+administrador) la CLI **``lsplugin``** y la GUI **SDK Studio** en el PATH, deja el esquema del manifiesto, la
+documentación y el paquete NuGet local del SDK y registra la desinstalación en «Aplicaciones instaladas». También hay
+un ``.zip`` con el mismo contenido, sin instalar.
 
 - Requisitos: Windows 10/11 x64. ``lsplugin`` es autocontenido; los proyectos de plugins necesitan el
-  [SDK de .NET 10](https://dotnet.microsoft.com/download) para compilar.
+  [SDK de .NET 10](https://dotnet.microsoft.com/download) para compilar (la GUI usa el mismo runtime).
 - ``SHA256SUMS.txt`` contiene el SHA-256 del instalador y del ``.zip``.
-- Crear un plugin (en una terminal nueva): ``lsplugin new mi-plugin --id com.empresa.miplugin --name "Mi plugin"``.
+- Crear un plugin (en una terminal nueva): ``lsplugin init mi-plugin --id com.empresa.miplugin --name "Mi plugin"``.
+  O con la GUI: ``sdkstudio\LiveStream.SdkStudio.exe`` (crear proyecto, manifiesto, compilar, empaquetar y firmar).
+- Referencia de la CLI: ``docs\CLI.md`` · guía de la API: ``docs\SDK.md`` (§5 y §6).
 - Código fuente de esta versión: tag [``$tag``](https://github.com/$Repository/tree/$tag) · licencia GPL-2.0-or-later.
-- LiveStream solo acepta plugins firmados; ver ``docs/SDK.md`` (§5 y §6).
 
 ## Cambios
 

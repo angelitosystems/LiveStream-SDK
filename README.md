@@ -11,13 +11,16 @@ herramientas validadas y con deshacer que usa el asistente de IA de la aplicaci�
 | Carpeta | Contenido |
 |---|---|
 | `src/LiveStream.PluginSdk` | Biblioteca .NET: manifiesto, paquetes `.lsplugin`, firma ECDSA P-256 y `JsonRpcPeer` |
+| `src/LiveStream.SdkCore` | Núcleo compartido: scaffold, empaquetado, firma, instalación, doctor y publicación |
 | `examples/HelloPlugin` | Plugin de ejemplo completo (unas 60 líneas) |
-| `tools/LiveStream.PluginTool` | `lsplugin`: crear, validar, empaquetar, firmar, verificar y publicar |
-| `tools/LiveStream.SdkSetup` | Instalador por usuario: deja `lsplugin` en el PATH, con esquema, docs y NuGet local |
+| `tools/LiveStream.PluginTool` | `lsplugin`: init, validate, build, pack, install, list, doctor, firma y publicación |
+| `tools/LiveStream.SdkStudio` | GUI del SDK (Avalonia): crear proyecto, manifiesto, paquete, plugins y diagnóstico |
+| `tools/LiveStream.SdkSetup` | Instalador por usuario: deja `lsplugin` + SDK Studio en el PATH, con esquema y NuGet local |
 | `plugin.schema.json` | Esquema JSON de `plugin.json` |
 | `scripts/` | Empaquetado de la distribución y notas de release |
-| `tests/` | Pruebas unitarias del instalador |
+| `tests/` | Pruebas de SdkCore (14), de la CLI como proceso real (11) y del instalador (8) |
 | `docs/SDK.md` | Guía completa: ciclo de vida, permisos, protocolo, versiones y errores frecuentes |
+| `docs/CLI.md` | Referencia de `lsplugin`: órdenes, banderas, códigos de salida y autocompletado |
 
 ## Instalar
 
@@ -35,24 +38,31 @@ Requiere el [SDK de .NET 10](https://dotnet.microsoft.com/download) para compila
 instalado (o `dotnet run --project tools/LiveStream.PluginTool` desde este repositorio):
 
 ```powershell
-lsplugin new mi-plugin --id com.empresa.miplugin --name "Mi plugin"
+lsplugin init mi-plugin --id com.empresa.miplugin --name "Mi plugin"
 cd mi-plugin
-dotnet publish -c Release
-lsplugin validate bin/Release/net10.0/win-x64/
-lsplugin pack bin/Release/net10.0/win-x64/ -o hello.lsplugin
+lsplugin build
+lsplugin pack bin\Release\net10.0\win-x64\
+lsplugin install .\com.empresa.miplugin-0.1.0.lsplugin --dev
 ```
 
-`lsplugin new` genera el proyecto completo: manifiesto, csproj, `Program.cs` ya conectado al protocolo, `NuGet.config`
-y `.gitignore`. Sin instalar el SDK, también funciona desde el repositorio:
+`lsplugin init` genera el proyecto completo: manifiesto, csproj, `Program.cs` de la plantilla elegida ya conectado al
+protocolo (`--template basic|graphics|sources|filters|integrations|tools`, ver detalles con `init-templates`),
+`NuGet.config` y `.gitignore`. Referencia de todas las órdenes: `docs/CLI.md` y `lsplugin help <orden>`.
+
+La misma lógica va también en una interfaz gráfica (**SDK Studio**, incluido en el instalador): creación de proyectos,
+edición del manifiesto con validación al instante, compilar/empaquetar/firmar, gestión de plugins instalados y
+diagnóstico. Ambas comparten el núcleo `LiveStream.SdkCore`, así que lo que se hace en la GUI es exactamente lo mismo
+que el comando equivalente de `lsplugin`.
+
+Sin instalar el SDK, también funciona desde el repositorio:
 
 ```powershell
 dotnet build
 dotnet run --project tools/LiveStream.PluginTool -- validate examples/HelloPlugin/bin/Debug/net10.0/win-x64
-dotnet run --project tools/LiveStream.PluginTool -- pack examples/HelloPlugin/bin/Debug/net10.0/win-x64 -o hello.lsplugin
 ```
 
-Para probarlo en LiveStream (0.9.0 o posterior): **Herramientas → Marketplace de plugins**, activa el **modo
-desarrollador** y pulsa **Instalar desde archivo…**.
+Para probarlo en LiveStream (0.9.0 o posterior): `lsplugin install <paquete> --dev` o **Herramientas → Marketplace de
+plugins**, activa el **modo desarrollador** y pulsa **Instalar desde archivo…**.
 
 ## Generar la distribución
 
