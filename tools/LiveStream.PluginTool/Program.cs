@@ -34,7 +34,8 @@ static async Task<int> RunAsync(string[] args)
               new <carpeta> --id <com.empresa.plugin> --name <nombre>   Crea un proyecto de plugin completo
               validate <carpeta|paquete.lsplugin>                      Comprueba manifiesto y paquete
               pack <carpeta> [-o salida.lsplugin]                      Empaqueta (reproducible)
-              keygen --private <ruta.pem> --public <ruta.pem> [--force] Crea el par de claves del publicador
+              keygen [--private ruta.pem] [--public ruta.pem] [--force]
+                                                                       Crea el par de claves del publicador; sin argumentos usa %USERPROFILE%\.livestream-plugins\private.pem y plugin-public-key.pem en la carpeta actual
               sign <paquete> --key <privada.pem>                       Escribe <paquete>.sig.json
               verify <paquete> --public <publica.pem>                  Comprueba paquete y firma
               publish <paquete> --server <url>                         Sube paquete + firma (token en LS_MARKETPLACE_TOKEN)
@@ -51,7 +52,8 @@ static async Task<int> RunAsync(string[] args)
         case "new":
         {
             var dir = Path.GetFullPath(Positional(rest, 0));
-            var manifest = new PluginManifest(Option(rest, "--id"), Option(rest, "--name"), "0.1.0", 1,
+            var manifest = new PluginManifest(Option(rest, "--id", usage: "Falta --id. Uso: lsplugin new <carpeta> --id com.empresa.plugin --name \"Nombre\" [--project Nombre] [--author Autor]"),
+                Option(rest, "--name", usage: "Falta --name (el nombre visible del plugin, entre comillas si tiene espacios)."), "0.1.0", 1,
                 $"{ProjectName(rest)}.{ExecutableExtension}", Author: Option(rest, "--author", ""),
                 Description: "Describe aquí qué hace el plugin.", Category: "General",
                 MinAppVersion: "0.9.0", Permissions: [PluginPermissions.StudioRead]);
@@ -100,8 +102,10 @@ static async Task<int> RunAsync(string[] args)
 
         case "keygen":
         {
-            var privatePath = Path.GetFullPath(Option(rest, "--private"));
-            var publicPath = Path.GetFullPath(Option(rest, "--public"));
+            // Sin argumentos usa las rutas recomendadas: privada en el perfil del usuario y pública junto a la consola.
+            var privatePath = Path.GetFullPath(Option(rest, "--private",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".livestream-plugins", "private.pem")));
+            var publicPath = Path.GetFullPath(Option(rest, "--public", "plugin-public-key.pem"));
             if ((File.Exists(privatePath) || File.Exists(publicPath)) && !rest.Contains("--force"))
                 throw new IOException("Ya existe una clave. Usa --force solo si de verdad quieres sustituirla: los plugins firmados con la anterior dejarán de verificarse.");
             if (IsInsideGitRepository(privatePath))
@@ -120,7 +124,8 @@ static async Task<int> RunAsync(string[] args)
         case "sign":
         {
             var package = Positional(rest, 0);
-            var signature = PackageSignature.Create(package, File.ReadAllText(Option(rest, "--key")));
+            var signature = PackageSignature.Create(package, File.ReadAllText(Option(rest, "--key",
+                usage: "Falta --key. Uso: lsplugin sign <paquete>.lsplugin --key <private.pem>")));
             File.WriteAllText(package + PackageSignature.FileSuffix, signature.ToJson());
             Console.WriteLine($"Firmado: {package}{PackageSignature.FileSuffix} ({signature.Id} {signature.Version})");
             return 0;
@@ -130,7 +135,8 @@ static async Task<int> RunAsync(string[] args)
         {
             var package = Positional(rest, 0);
             var signature = PackageSignature.FromJson(File.ReadAllText(package + PackageSignature.FileSuffix));
-            if (signature.VerifyPackage(package, File.ReadAllText(Option(rest, "--public"))) is { } error)
+            if (signature.VerifyPackage(package, File.ReadAllText(Option(rest, "--public",
+                usage: "Falta --public. Uso: lsplugin verify <paquete>.lsplugin --public plugin-public-key.pem"))) is { } error)
                 throw new PluginValidationException(error);
             Console.WriteLine($"Firma válida: {signature.Id} {signature.Version}");
             return 0;
@@ -194,7 +200,8 @@ static async Task<string> SendAsync(string[] rest, HttpMethod method, string pat
 
 static HttpClient Client(string[] rest)
 {
-    var server = new Uri(Option(rest, "--server").TrimEnd('/') + "/");
+    var server = new Uri(Option(rest, "--server",
+        usage: "Falta --server. Uso: lsplugin <orden> --server https://<marketplace> (el token va en la variable LS_MARKETPLACE_TOKEN).").TrimEnd('/') + "/");
     if (server.Scheme != Uri.UriSchemeHttps && !server.IsLoopback)
         throw new ArgumentException("El servidor debe usar HTTPS.");
     var token = Environment.GetEnvironmentVariable(TokenVariable);
@@ -227,12 +234,12 @@ static string Positional(string[] rest, int index)
     return index < values.Count ? values[index] : throw new ArgumentException("Faltan argumentos. Usa «lsplugin help».");
 }
 
-static string Option(string[] rest, string name, string? fallback = null)
+static string Option(string[] rest, string name, string? fallback = null, string? usage = null)
 {
     var i = Array.IndexOf(rest, name);
     if (i >= 0 && i + 1 < rest.Length)
         return rest[i + 1];
-    return fallback ?? throw new ArgumentException($"Falta {name}.");
+    return fallback ?? throw new ArgumentException(usage ?? $"Falta {name}. Usa «lsplugin help».");
 }
 
 static bool IsInsideGitRepository(string path)
