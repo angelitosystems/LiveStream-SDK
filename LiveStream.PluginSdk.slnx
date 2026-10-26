@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/HelloPlugin/HelloPlugin.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/LiveStream.PluginSdk/LiveStream.PluginSdk.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/LiveStream.PluginTool/LiveStream.PluginTool.csproj" />
+  </Folder>
+</Solution>

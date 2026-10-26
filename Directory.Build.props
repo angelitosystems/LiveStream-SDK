@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Versión del SDK; la del protocolo es apiVersion (hoy 1). -->
+    <Version>1.0.0</Version>
+    <Product>LiveStream Plugin SDK</Product>
+    <Company>Angelito Systems S.A.C.</Company>
+    <Copyright>© 2026 Angel Calderon Mantilla. GPL-2.0-or-later.</Copyright>
+  </PropertyGroup>
+</Project>

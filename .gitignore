@@ -1,0 +1,6 @@
+bin/
+obj/
+*.lsplugin
+*.sig.json
+*.pem
+.vs/

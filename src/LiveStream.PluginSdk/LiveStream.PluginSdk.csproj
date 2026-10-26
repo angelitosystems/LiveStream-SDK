@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- SDK oficial de plugins: manifiesto, paquetes .lsplugin, firma y protocolo JSON-RPC. Multiplataforma. -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <PackageId>LiveStream.PluginSdk</PackageId>
+    <Description>SDK oficial para crear plugins de LiveStream (manifiesto, empaquetado, firma y protocolo JSON-RPC).</Description>
+  </PropertyGroup>
+</Project>

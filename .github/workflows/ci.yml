@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Compilar
+        run: dotnet build -c Release --nologo
+      - name: Validar y empaquetar el ejemplo
+        shell: pwsh
+        run: |
+          $out = (Get-ChildItem examples/HelloPlugin/bin/Release -Recurse -Filter HelloPlugin.exe | Select-Object -First 1).Directory.FullName
+          dotnet run --project tools/LiveStream.PluginTool -c Release --no-build -- validate $out
+          dotnet run --project tools/LiveStream.PluginTool -c Release --no-build -- pack $out -o hello.lsplugin

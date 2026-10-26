@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Herramienta de quien publica: crear, validar, empaquetar, firmar y publicar plugins en el marketplace. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>lsplugin</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LiveStream.PluginSdk\LiveStream.PluginSdk.csproj" />
+  </ItemGroup>
+</Project>
