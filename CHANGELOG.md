@@ -4,6 +4,17 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 [Versionado Semántico](https://semver.org/lang/es/). La versión del SDK describe la biblioteca y el CLI; el protocolo
 con LiveStream tiene su propia versión (`apiVersion`, hoy `1`).
 
+## [1.0.1] - 2026-10-25
+
+### Añadido
+- `lsplugin keygen` sin argumentos usa las rutas recomendadas: privada en
+  `%USERPROFILE%\.livestream-plugins\private.pem` y pública en `plugin-public-key.pem` de la carpeta actual, sin
+  sobrescribir si ya existen (aviso con `--force`).
+
+### Cambiado
+- Los argumentos que faltan (`--id`, `--name`, `--server`, `--key`, `--public`) explican en el error el uso esperado
+  de la orden, en vez de solo «Falta --x».
+
 ## [1.0.0] - 2026-10-25
 
 Primera versión pública del SDK.
