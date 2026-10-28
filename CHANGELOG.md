@@ -4,6 +4,14 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 [Versionado Semántico](https://semver.org/lang/es/). La versión del SDK describe la biblioteca y el CLI; el protocolo
 con LiveStream tiene su propia versión (`apiVersion`, hoy `1`).
 
+## [1.2.0] - 2026-10-28
+
+### Añadido
+- **`PluginClient`** (`src/LiveStream.PluginSdk`): el lado del plugin del protocolo, listo para usar. Responde a
+  `initialize`/`shutdown`, guarda los ajustes (`Setting`, `Number`), entrega los eventos de uno en uno fuera del hilo
+  de lectura y ofrece `CallToolAsync`, `StudioStateAsync` y `EnsureGraphicAsync`. Pruebas en
+  `tests/LiveStream.SdkCore.Tests/PluginClientTests.cs` contra un host simulado.
+
 ## [1.1.0] - 2026-10-26
 
 Ecosistema del SDK reorganizado: CLI profesional y GUI que comparten el mismo núcleo de servicios.

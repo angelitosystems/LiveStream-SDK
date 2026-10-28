@@ -4,7 +4,7 @@ Un plugin es **un programa aparte** (`.exe` de Windows x64, en cualquier lenguaj
 propio proceso y con el que habla por **JSON-RPC 2.0 en stdin/stdout**, un mensaje JSON por línea. El plugin no se
 carga dentro de LiveStream: si se cuelga o se cierra, el estudio sigue funcionando.
 
-- Biblioteca .NET: `src/LiveStream.PluginSdk` (manifiesto, empaquetado, firma y `JsonRpcPeer`).
+- Biblioteca .NET: `src/LiveStream.PluginSdk` (manifiesto, empaquetado, firma, `JsonRpcPeer` y `PluginClient`).
 - Ejemplo completo: `examples/HelloPlugin`.
 - Herramienta de quien publica: `tools/LiveStream.PluginTool` (`lsplugin`).
 - Esquema del manifiesto: `plugin.schema.json`.
@@ -104,6 +104,11 @@ Ejemplo (consultar el estado):
 ```
 
 En .NET, `JsonRpcPeer` resuelve el entramado. Mira `examples/HelloPlugin/Program.cs`, unas 60 líneas.
+
+`PluginClient` va un paso más allá: responde a `initialize`/`shutdown`, guarda los ajustes (`Setting`, `Number`),
+entrega los eventos de uno en uno fuera del hilo de lectura y ofrece `CallToolAsync`, `StudioStateAsync` y
+`EnsureGraphicAsync`. Los plugins oficiales (rotador de titulares, rótulo automático de escena y marcador desde
+archivo) lo usan y caben en unas 50 líneas cada uno.
 
 ## 5. Crear, probar y empaquetar
 
